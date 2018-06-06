@@ -68,6 +68,10 @@ tf.app.flags.DEFINE_integer("load", 0, "Try to load a previous checkpoint.")
 # Misc
 tf.app.flags.DEFINE_boolean("use_fp16", False, "Train using fp16 instead of fp32.")
 
+# yaikeda defined flags
+tf.app.flags.DEFINE_string('output_filename', 'test', 'Name string for output files.')
+tf.app.flags.DEFINE_string('output_dirname', 'png' , 'Name string for an output directory.')
+
 FLAGS = tf.app.flags.FLAGS
 
 train_dir = os.path.join( FLAGS.train_dir,

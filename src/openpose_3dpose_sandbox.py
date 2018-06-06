@@ -49,21 +49,25 @@ def read_openpose_json(smooth=True, *args):
     for file_name in json_files:
         logger.debug("reading {0}".format(file_name))
         _file = os.path.join(openpose_output_dir, file_name)
-        if not os.path.isfile(_file): raise Exception("No file found!!, {0}".format(_file))
+        
+        if not os.path.isfile(_file):
+            raise Exception("No file found!!, {0}".format(_file))
         data = json.load(open(_file))
-        #take first person
-        _data = data["people"][0]["pose_keypoints"]
-        xy = []
-        #ignore confidence score
-        for o in range(0,len(_data),3):
-            xy.append(_data[o])
-            xy.append(_data[o+1])
+        
+        if len(data['people']) > 0:
+            #take first person
+            _data = data["people"][0]["pose_keypoints"]
+            xy = []
+            #ignore confidence score
+            for o in range(0,len(_data),3):
+                xy.append(_data[o])
+                xy.append(_data[o+1])
 
-        # get frame index from openpose 12 padding
-        frame_indx = re.findall("(\d+)", file_name)
-        logger.debug("found {0} for frame {1}".format(xy, str(int(frame_indx[0]))))
-        #add xy to frame
-        cache[int(frame_indx[0])] = xy
+            # get frame index from openpose 12 padding
+            frame_indx = re.findall("(\d+)", file_name)
+            logger.debug("found {0} for frame {1}".format(xy, str(int(frame_indx[0]))))
+            #add xy to frame
+            cache[int(frame_indx[0])] = xy
     plt.figure(1)
     drop_curves_plot = show_anim_curves(cache, plt)
     pngName = 'png/dirty_plot.png'
@@ -317,7 +321,7 @@ def main(_):
             logger.debug(poses3d)
             viz.show3Dpose(p3d, ax, lcolor="#9b59b6", rcolor="#2ecc71")
 
-            pngName = 'png/test_{0}.png'.format(str(frame.zfill(5)))
+            pngName = FLAGS.output_dirname + '/' + FLAGS.output_filename + '_{0}.png'.format(str(frame))
             if FLAGS.write_output_img:
                 plt.savefig(pngName)
             png_lib.append(imageio.imread(pngName))
