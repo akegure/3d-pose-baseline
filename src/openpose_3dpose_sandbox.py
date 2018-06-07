@@ -56,7 +56,7 @@ def read_openpose_json(smooth=True, *args):
         
         if len(data['people']) > 0:
             #take first person
-            _data = data["people"][0]["pose_keypoints"]
+            _data = data["people"][0]["pose_keypoints_2d"]
             xy = []
             #ignore confidence score
             for o in range(0,len(_data),3):
@@ -70,7 +70,7 @@ def read_openpose_json(smooth=True, *args):
             cache[int(frame_indx[0])] = xy
     plt.figure(1)
     drop_curves_plot = show_anim_curves(cache, plt)
-    pngName = 'png/dirty_plot.png'
+    pngName = FLAGS.output_dirname + '/supplemental' + '/dirty_plot.png'
     drop_curves_plot.savefig(pngName)
 
     # exit if no smoothing
@@ -175,7 +175,7 @@ def main(_):
     logger.info("reading and smoothing done. start feeding 3d-pose-baseline")
     plt.figure(2)
     smooth_curves_plot = show_anim_curves(smoothed, plt)
-    pngName = 'png/smooth_plot.png'
+    pngName = FLAGS.output_dirname + '/supplemental' + '/smooth_plot.png'
     smooth_curves_plot.savefig(pngName)
     
     if FLAGS.interpolation:
@@ -223,9 +223,8 @@ def main(_):
         plt.figure(3)
         smoothed = interpolate_smoothed
         interpolate_curves_plot = show_anim_curves(smoothed, plt)
-        pngName = 'png/interpolate_plot.png'
+        pngName = FLAGS.output_dirname + '/supplemental' + '/interpolate_plot.png'
         interpolate_curves_plot.savefig(pngName)
-
 
     enc_in = np.zeros((1, 64))
     enc_in[0] = [0 for i in range(64)]
@@ -241,10 +240,8 @@ def main(_):
 
     device_count = {"GPU": 1}
     png_lib = []
-    with tf.Session(config=tf.ConfigProto(
-            device_count=device_count,
-            allow_soft_placement=True)) as sess:
-        #plt.figure(3)
+    with tf.Session(config=tf.ConfigProto(device_count=device_count,allow_soft_placement=True)) as sess:
+        plt.figure(4)
         batch_size = 128
         model = create_model(sess, actions, batch_size)
         for n, (frame, xy) in enumerate(smoothed.items()):
@@ -324,12 +321,12 @@ def main(_):
             pngName = FLAGS.output_dirname + '/' + FLAGS.output_filename + '_{0}.png'.format(str(frame))
             if FLAGS.write_output_img:
                 plt.savefig(pngName)
-            png_lib.append(imageio.imread(pngName))
+            #png_lib.append(imageio.imread(pngName))
             before_pose = poses3d
 
     if FLAGS.write_gif:
-        logger.info("creating Gif png/movie_smoothing.gif, please Wait!")
-        imageio.mimsave('png/movie_smoothing.gif', png_lib, fps=FLAGS.gif_fps)
+        logger.info("creating Gif movie_smoothing.gif, please Wait!")
+        imageio.mimsave(FLAGS.output_dirname + '/supplemental' + '/movie_smoothing.gif', png_lib, fps=FLAGS.gif_fps)
     logger.info("Done!".format(pngName))
 
 
