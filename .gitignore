@@ -8,3 +8,5 @@ experiments/
 *.swp
 *.png
 *.tar.gz
+data_openpose/
+output/
